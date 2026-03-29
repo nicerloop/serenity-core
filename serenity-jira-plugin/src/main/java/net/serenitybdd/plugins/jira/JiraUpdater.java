@@ -30,7 +30,10 @@ import static net.serenitybdd.plugins.jira.model.JIRACommentBuilder.SERENITY_COM
 
 /**
  * Class used for JIra interaction, to update comments in Jira issues.
+ * @deprecated The Jira integration modules are deprecated due to Atlassian API token limitations
+ * that prevent reliable automated testing. These modules are no longer actively maintained.
  */
+@Deprecated
 public class JiraUpdater {
 
     static int DEFAULT_MAX_THREADS = 4;

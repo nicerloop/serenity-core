@@ -8,9 +8,9 @@
     </parent>
     <artifactId>serenity-jira-requirements-provider</artifactId>
     <packaging>jar</packaging>
-    <name>Serenity Jira Requirements Provider</name>
+    <name>Serenity Jira Requirements Provider (Deprecated)</name>
 
-    <description>Read Serenity requirements from JIRA Story and Epic cards</description>
+    <description>Read Serenity requirements from JIRA Story and Epic cards (Deprecated)</description>
 
 
     <dependencies>
@@ -83,6 +83,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

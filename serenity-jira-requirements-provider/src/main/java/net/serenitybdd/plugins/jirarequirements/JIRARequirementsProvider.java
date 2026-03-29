@@ -28,7 +28,10 @@ import java.util.*;
 
 /**
  * Integrate Thucydides reports with requirements, epics and stories in a JIRA server.
+ * @deprecated The Jira integration modules are deprecated due to Atlassian API token limitations
+ * that prevent reliable automated testing. These modules are no longer actively maintained.
  */
+@Deprecated
 public class JIRARequirementsProvider implements RequirementsTagProvider {
 
     private List<Requirement> requirements = null;

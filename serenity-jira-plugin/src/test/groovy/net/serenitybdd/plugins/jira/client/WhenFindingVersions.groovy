@@ -4,7 +4,7 @@ import net.serenitybdd.plugins.jira.JiraConnectionSettings
 import net.serenitybdd.plugins.jira.domain.Version
 import spock.lang.Specification
 
-class WhenFindingVersions extends Specification {
+class Yo extends Specification {
 
 
     def jiraClient = new JerseyJiraClient(JiraConnectionSettings.getJIRAWebserviceURL(),JiraConnectionSettings.getJIRAUserName(),JiraConnectionSettings.getJIRAUserApiToken(),"DEMO")

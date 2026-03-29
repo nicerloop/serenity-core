@@ -7,7 +7,7 @@
         <version>5.3.8-SNAPSHOT</version>
     </parent>
     <artifactId>serenity-jira-plugin</artifactId>
-    <name>Serenity Jira Plugin</name>
+    <name>Serenity Jira Plugin (Deprecated)</name>
     <build>
         <plugins>
            <plugin>
@@ -35,6 +35,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
             </plugin>
 <!--            <plugin>-->
 <!--                <groupId>org.codehaus.mojo</groupId>-->

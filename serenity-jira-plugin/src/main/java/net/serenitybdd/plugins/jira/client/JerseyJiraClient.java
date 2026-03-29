@@ -18,8 +18,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
@@ -31,25 +33,29 @@ import java.util.concurrent.ExecutionException;
 import static java.util.Collections.EMPTY_LIST;
 
 /**
- * A JIRA client using the new REST interface
+ * A JIRA client using the new REST interface.
+ * @deprecated The Jira integration modules are deprecated due to Atlassian API token limitations
+ * that prevent reliable automated testing. These modules are no longer actively maintained.
  */
+@Deprecated
 @SuppressWarnings("unchecked")
 public class JerseyJiraClient {
 
-    private static final String ADD_COMMENT = "rest/api/latest/issue/%s/comment";
-    private static final String UPDATE_COMMENT = "rest/api/latest/issue/%s/comment/%s";
-    private static final String REST_SEARCH = "rest/api/latest/search";
-    private static final String VERSIONS_SEARCH = "rest/api/latest/project/%s/versions";
-    private static final String ISSUE = "rest/api/latest/issue/";
-    private static final String PROJECT = "rest/api/latest/project";
-    private static final String GET_TRANSITIONS = "rest/api/latest/issue/%s/transitions";
+    private static final String ADD_COMMENT = "rest/api/3/issue/%s/comment";
+    private static final String UPDATE_COMMENT = "rest/api/3/issue/%s/comment/%s";
+    private static final String REST_SEARCH = "rest/api/3/search";
+    private static final String VERSIONS_SEARCH = "rest/api/3/project/%s/versions";
+    private static final String ISSUE = "rest/api/3/issue/";
+    private static final String PROJECT = "rest/api/3/project";
+    private static final String GET_TRANSITIONS = "rest/api/3/issue/%s/transitions";
 
     private static final int REDIRECT_REQUEST = 302;
     private static final String DEFAULT_ISSUE_TYPE = "Bug";
     private static final int WITH_NO_BATCHES = 0;
     private final String url;
     private final String username;
-    private final String password;
+    private final String token;
+    private final boolean useBasicAuth;
     private final int batchSize;
     private final String project;
     private final List<String> customFields;
@@ -77,13 +83,22 @@ public class JerseyJiraClient {
     }
 
 
-    public JerseyJiraClient(String url, String username, String password, int batchSize,
+    public JerseyJiraClient(String url, String username, String token, int batchSize,
+                            String project,
+                            String metadataIssueType,
+                            List<String> customFields) {
+        this(url, username, token, true, batchSize, project, metadataIssueType, customFields);
+    }
+
+    public JerseyJiraClient(String url, String username, String token, boolean useBasicAuth,
+                            int batchSize,
                             String project,
                             String metadataIssueType,
                             List<String> customFields) {
         this.url = url;
         this.username = username;
-        this.password = password;
+        this.token = token;
+        this.useBasicAuth = useBasicAuth;
         this.batchSize = batchSize;
         this.project = project;
         this.metadataIssueType = metadataIssueType;
@@ -111,11 +126,11 @@ public class JerseyJiraClient {
     }
 
     public JerseyJiraClient usingCustomFields(List<String> customFields) {
-        return new JerseyJiraClient(url, username, password, batchSize, project, metadataIssueType, customFields);
+        return new JerseyJiraClient(url, username, token, useBasicAuth, batchSize, project, metadataIssueType, customFields);
     }
 
     public JerseyJiraClient usingMetadataIssueType(String metadataIssueType) {
-        return new JerseyJiraClient(url, username, password, batchSize, project, metadataIssueType, customFields);
+        return new JerseyJiraClient(url, username, token, useBasicAuth, batchSize, project, metadataIssueType, customFields);
     }
 
     public List<IssueSummary> findByJQL(String query, LoadingStrategy loadingStrategy) throws JQLException {
@@ -206,7 +221,7 @@ public class JerseyJiraClient {
             target = target.queryParam("maxResults", batchSize);
         }
         Response response = target.request().get();
-        checkValid(response);
+        checkValid(response, target.getUri().toString());
         return response.readEntity(String.class);
     }
 
@@ -224,7 +239,7 @@ public class JerseyJiraClient {
         String url = String.format(VERSIONS_SEARCH, projectName);
         WebTarget target = buildWebTargetFor(url);
         Response response = target.request().get();
-        checkValid(response);
+        checkValid(response, target.getUri().toString());
         return response.readEntity(String.class);
     }
 
@@ -455,7 +470,7 @@ public class JerseyJiraClient {
         if (isEmpty(response)) {
             return 0;
         } else {
-            checkValid(response);
+            checkValid(response, target.getUri().toString());
         }
 
         String jsonResponse = response.readEntity(String.class);
@@ -484,7 +499,7 @@ public class JerseyJiraClient {
         if (resourceDoesNotExist(response)) {
             return Optional.empty();
         } else {
-            checkValid(response);
+            checkValid(response, target.getUri().toString());
             return Optional.of(response.readEntity(String.class));
         }
     }
@@ -506,16 +521,21 @@ public class JerseyJiraClient {
         if (resourceDoesNotExist(response)) {
             return Optional.empty();
         } else {
-            checkValid(response);
+            checkValid(response, target.getUri().toString());
             return Optional.of(response.readEntity(String.class));
         }
     }
 
     public Client restClient() {
-        return ClientBuilder.newBuilder()
-                .register(HttpAuthenticationFeature.basic(username, password))
-                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.TRUE)
-                .build();
+        ClientBuilder builder = ClientBuilder.newBuilder()
+                .property(ClientProperties.FOLLOW_REDIRECTS, Boolean.TRUE);
+        if (useBasicAuth) {
+            builder.register(HttpAuthenticationFeature.basic(username, token));
+        } else {
+            builder.register((ClientRequestFilter) requestContext ->
+                    requestContext.getHeaders().putSingle(HttpHeaders.AUTHORIZATION, "Bearer " + token));
+        }
+        return builder.build();
     }
 
     private String stringValueOf(JsonElement field) {
@@ -547,22 +567,22 @@ public class JerseyJiraClient {
         return response.getStatus() == 400;
     }
 
-    public void checkValid(Response response) {
+    public void checkValid(Response response, String queryUrl) {
         int status = response.getStatus();
         if (status != OK && (status != CREATE_ISSUE_OK) && (status != DELETE_ISSUE_OK)) {
             switch (status) {
                 case 400:
                     return;
                 case 401:
-                    handleAuthenticationError("Authentication error (401) for user " + this.username);
+                    handleAuthenticationError("Authentication error (401) for user " + this.username + " (URL: " + queryUrl + ")");
                 case 403:
-                    handleAuthenticationError("Forbidden error (403) for user " + this.username);
+                    handleAuthenticationError("Forbidden error (403) for user " + this.username + " (URL: " + queryUrl + ")");
                 case 404:
-                    handleConfigurationError("Service not found (404) - try checking the JIRA URL?");
+                    handleConfigurationError("Service not found (404) - try checking the JIRA URL: " + queryUrl);
                 case 407:
-                    handleConfigurationError("Proxy authentication required (407)");
+                    handleConfigurationError("Proxy authentication required (407) (URL: " + queryUrl + ")");
                 default:
-                    throw new JQLException("JIRA query failed: error " + status);
+                    throw new JQLException("JIRA query failed: error " + status + " (URL: " + queryUrl + ")");
             }
         }
     }
@@ -723,26 +743,26 @@ public class JerseyJiraClient {
         jsonIssue.add(IssueSummary.FIELDS_KEY, fields);
 
         Response response = target.request().post(Entity.json(jsonIssue.toString()));
-        checkValid(response);
+        checkValid(response, target.getUri().toString());
         return IssueSummary.fromJsonString(response.readEntity(String.class));
     }
 
     public void deleteIssue(IssueSummary issue) throws Exception {
         WebTarget target = restClient().target(issue.getSelf());
-        checkValid(target.request().delete());
+        checkValid(target.request().delete(), target.getUri().toString());
     }
 
     public Project getProjectByKey(String projectKey) {
         WebTarget target = restClient().target(url).path(PROJECT + "/" + projectKey);
         Response response = target.request().get();
-        checkValid(response);
+        checkValid(response, target.getUri().toString());
         return Project.fromJsonString(response.readEntity(String.class));
     }
 
     public IssueSummary getIssue(String issueKey) {
         WebTarget target = restClient().target(url).path(ISSUE + issueKey);
         Response response = target.request().get();
-        checkValid(response);
+        checkValid(response, target.getUri().toString());
         return IssueSummary.fromJsonString(response.readEntity(String.class));
     }
 
@@ -753,7 +773,7 @@ public class JerseyJiraClient {
         JsonObject jsonComment = new JsonObject();
         jsonComment.add(IssueComment.BODY_KEY, new JsonPrimitive(newComment.getBody()));
         Response response = target.request().post(Entity.json(jsonComment.toString()));
-        checkValid(response);
+        checkValid(response, target.getUri().toString());
         issueSummaryCache.invalidate(issueKey);
     }
 
@@ -772,7 +792,7 @@ public class JerseyJiraClient {
     public List<IssueComment> getComments(String issueKey) throws ParseException {
         WebTarget target = restClient().target(url).path(ISSUE + issueKey + "/comment");
         Response response = target.request().get();
-        checkValid(response);
+        checkValid(response, target.getUri().toString());
         String jsonIssueRepresentation = response.readEntity(String.class);
         JsonParser parser = new JsonParser();
         JsonObject jsonObject = parser.parse(jsonIssueRepresentation).getAsJsonObject();
@@ -789,7 +809,7 @@ public class JerseyJiraClient {
         List<IssueTransition> availableActions = new ArrayList<IssueTransition>();
         WebTarget target = buildWebTargetFor(String.format(GET_TRANSITIONS, issueKey));
         Response response = target.request().get();
-        checkValid(response);
+        checkValid(response, target.getUri().toString());
         String jsonIssueRepresentation = response.readEntity(String.class);
         JsonParser parser = new JsonParser();
         JsonObject jsonObject = parser.parse(jsonIssueRepresentation).getAsJsonObject();
@@ -806,6 +826,6 @@ public class JerseyJiraClient {
         JsonObject jsonTransition = new JsonObject();
         jsonTransition.add(IssueTransition.TRANSITION_KEY, new JsonPrimitive(transitionId));
         Response response = target.request().post(Entity.json(jsonTransition.toString()));
-        checkValid(response);
+        checkValid(response, target.getUri().toString());
     }
 }

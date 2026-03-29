@@ -49,6 +49,11 @@ And if you drill into the details, Serenity will give you a detailed account of 
 
 ![Serenity Test Details](docs/serenity-details.png "Logo Title Text 1")
 
+## Deprecated Modules
+
+### Jira Integration (`serenity-jira-plugin`, `serenity-jira-requirements-provider`)
+The Jira integration modules are **deprecated** and no longer actively maintained. Atlassian's API token restrictions (mandatory expiration, limited scopes, and permission changes) make it impractical to reliably test and maintain these integrations. The modules remain in the codebase for existing users but tests are disabled and no further development is planned. If Jira integration is important to your project or organisation, we would be happy to revisit this decision via a [commercial support package](https://www.serenitydojo.academy/serenity-bdd-support-packages).
+
 ## Found a bug?
 You can raise a defect here. Note that this is an open source project, so **the fastest way to fix an issue is to fix it yourself and to propose a pull request**. 
 

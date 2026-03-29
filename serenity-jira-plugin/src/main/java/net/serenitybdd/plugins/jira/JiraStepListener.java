@@ -20,7 +20,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * Updates JIRA issues referenced in a story with a link to the corresponding story report.
+ * @deprecated The Jira integration modules are deprecated due to Atlassian API token limitations
+ * that prevent reliable automated testing. These modules are no longer actively maintained.
  */
+@Deprecated
 public class JiraStepListener extends StepListenerAdapter {
 
     private final TestResultTally<TestOutcomeSummary> resultTally = new TestResultTally<>();
