@@ -98,8 +98,7 @@ public class PageObjectDependencyInjector implements DependencyInjector {
         if (pageObject instanceof PageObject) {
             PageObject page = (PageObject) pageObject;
 
-            // Only set the driver if it's not already set
-            if (!Serenity.getWebdriverManager().hasAnInstantiatedDriver()) {
+            if (Serenity.getWebdriverManager().hasAnInstantiatedDriver()) {
                 page.setDriver(Serenity.getWebdriverManager().getWebdriver());
             }
         }
