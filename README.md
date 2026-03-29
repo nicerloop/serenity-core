@@ -118,6 +118,7 @@ Check out Serenity BDD in more detail here:
     
 ## Release Notes
 Release notes are available for major releases:
+* [5.3.9](docs/release-notes/5.3.9.md) - Page source recording fix (#3719), security fixes, `QuestionWithDefinedSubject` fix (#3661)
 * [5.3.8](docs/release-notes/5.3.8.md) - Screenshot navigation fix (#3722), `@FindBy` NPE fix (#3714), Jira modules deprecated
 * [5.3.7](docs/release-notes/5.3.7.md) - New `serenity-bom` for simplified dependency management, CI fixes, Playwright test stabilization
 * [5.3.6](docs/release-notes/5.3.6.md) - New `serenity-bom` module for simplified dependency management
@@ -158,6 +159,7 @@ The tables below list the latest stable and tested versions of Serenity BDD and 
 
 | serenity-core | serenity-maven-plugin | JUnit version | Selenium version | RestAssured version | Appium client version |
 |---------------|-----------------------|---------------|------------------|---------------------|-----------------------|
+| 5.3.9         | 5.3.9                 | 6.0.3         | 4.41.0           | 6.0.0               | 10.0.0                |
 | 5.3.8         | 5.3.8                 | 6.0.3         | 4.41.0           | 6.0.0               | 10.0.0                |
 | 5.3.7         | 5.3.7                 | 6.0.3         | 4.41.0           | 6.0.0               | 10.0.0                |
 | 5.3.6         | 5.3.6                 | 6.0.3         | 4.41.0           | 6.0.0               | 10.0.0                |
@@ -219,6 +221,7 @@ Sample project: [Serenity JUnit Starter Project](https://github.com/serenity-bdd
 
 | serenity-core | serenity-playwright | Playwright version |
 |---------------|---------------------|--------------------|
+| 5.3.9         | 5.3.9               | 1.58.0             |
 | 5.3.8         | 5.3.8               | 1.58.0             |
 | 5.3.7         | 5.3.7               | 1.58.0             |
 | 5.3.6         | 5.3.6               | 1.58.0             |
@@ -238,6 +241,7 @@ Sample project: [Serenity Playwright Starter Project](https://github.com/serenit
 #### Cucumber 7 (Serenity 3.1.15 onwards)
 | serenity-core | serenity-maven-plugin | serenity-cucumber | Cucumber |
 |---------------|-----------------------|-------------------|----------|
+| 5.3.9         | 5.3.9                 | 5.3.9             | 7.34.2   |
 | 5.3.8         | 5.3.8                 | 5.3.8             | 7.34.2   |
 | 5.3.7         | 5.3.7                 | 5.3.7             | 7.34.2   |
 | 5.3.6         | 5.3.6                 | 5.3.6             | 7.34.2   |
