@@ -270,7 +270,7 @@
                     </#if>
                 </#if>
                 <div class="swiper-slide">
-                    <img src="${screenshot.filename}" title="${(formatter.depthIndicatorForLevel(screenshot.depth))!} ${caption}" width="${screenshot.width?string.computer}" />
+                    <img src="${screenshot.filename}" title="${(formatter.depthIndicatorForLevel(screenshot.depth))!} ${caption?html}" width="${screenshot.width?string.computer}" />
                 </div>
             </#foreach>
         </div>
