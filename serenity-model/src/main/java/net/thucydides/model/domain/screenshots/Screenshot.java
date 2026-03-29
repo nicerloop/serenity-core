@@ -16,13 +16,14 @@ public class Screenshot {
     private final FailureCause error;
     private final Long timestamp;
     private final int depth;
+    private final String htmlSourceName;
 
     public Screenshot(String filename,
                       String description,
                       int width,
                       long timestamp,
                       FailureCause error) {
-        this(filename,description, width, timestamp, error, 0);
+        this(filename, description, width, timestamp, error, 0, null);
     }
 
 
@@ -32,19 +33,30 @@ public class Screenshot {
                       long timestamp,
                       FailureCause error,
                       int depth) {
+        this(filename, description, width, timestamp, error, depth, null);
+    }
+
+    public Screenshot(String filename,
+                      String description,
+                      int width,
+                      long timestamp,
+                      FailureCause error,
+                      int depth,
+                      String htmlSourceName) {
         this.filename = filename;
         this.description = description;
         this.timestamp = timestamp;
         this.width = width;
         this.error = error;
         this.depth = depth;
+        this.htmlSourceName = htmlSourceName;
     }
 
     public Screenshot(final String filename,
                       final String description,
                       final int width,
                       final long timestamp) {
-        this(filename, description, width, timestamp, null, 0);
+        this(filename, description, width, timestamp, null, 0, null);
     }
 
     public FailureCause getError() {
@@ -83,20 +95,28 @@ public class Screenshot {
         return depth;
     }
 
+    public String getHtmlSourceName() {
+        return htmlSourceName;
+    }
+
+    public boolean hasHtmlSource() {
+        return htmlSourceName != null;
+    }
+
     public HtmlFormattedInfo getHtml() {
         return new HtmlFormattedInfo(description);
     }
 
     public Screenshot withDescription(String description) {
-        return new Screenshot(filename, description, width, timestamp, error, depth);
+        return new Screenshot(filename, description, width, timestamp, error, depth, htmlSourceName);
     }
 
     public Screenshot withDepth(int depth) {
-        return new Screenshot(filename, description, width, timestamp, error, depth);
+        return new Screenshot(filename, description, width, timestamp, error, depth, htmlSourceName);
     }
 
     public Screenshot before() {
-        return new Screenshot(filename, description, width, timestamp  - 1, error, depth);
+        return new Screenshot(filename, description, width, timestamp  - 1, error, depth, htmlSourceName);
     }
 
     public static class HtmlFormattedInfo {

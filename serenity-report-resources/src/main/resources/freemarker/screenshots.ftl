@@ -271,6 +271,11 @@
                 </#if>
                 <div class="swiper-slide">
                     <img src="${screenshot.filename}" title="${(formatter.depthIndicatorForLevel(screenshot.depth))!} ${caption?html}" width="${screenshot.width?string.computer}" />
+                    <#if screenshot.hasHtmlSource()>
+                        <div style="text-align: center; margin-top: 5px;">
+                            <a href="${screenshot.htmlSourceName}" target="_blank" class="btn btn-info btn-sm">HTML Source</a>
+                        </div>
+                    </#if>
                 </div>
             </#foreach>
         </div>

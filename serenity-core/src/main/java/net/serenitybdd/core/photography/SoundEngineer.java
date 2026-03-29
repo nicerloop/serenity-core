@@ -11,7 +11,7 @@ import static net.thucydides.model.ThucydidesSystemProperty.SERENITY_STORE_HTML;
 public class SoundEngineer {
 
     private final EnvironmentVariables environmentVariables;
-    private boolean recordPageSource = true;
+    private boolean recordPageSource = false;
 
     public SoundEngineer(EnvironmentVariables environmentVariables) {
         this.environmentVariables = environmentVariables;

@@ -363,7 +363,8 @@ public class TestStep implements Cloneable {
                 widthOf(from.getScreenshot()),
                 from.getTimeStamp(),
                 getException(),
-                level);
+                level,
+                from.getHtmlSourceName());
     }
 
     private static int widthOf(final File screenshot) {

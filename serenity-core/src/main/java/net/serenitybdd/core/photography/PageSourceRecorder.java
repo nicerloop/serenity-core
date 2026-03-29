@@ -30,7 +30,7 @@ public class PageSourceRecorder {
         byte[] pageSource = render(getPageSource());
 
 
-        if (WebDriverFactory.isAlive(driver) && (pageSource.length > 0) && shouldRecordPageSource()) {
+        if (WebDriverFactory.isAlive(driver) && (pageSource.length > 0)) {
             try {
                 Path pageSourceFile = Files.createTempFile(path, "pagesource", ".html");
                 Files.write(pageSourceFile, pageSource);
@@ -41,12 +41,6 @@ public class PageSourceRecorder {
         }
         return Optional.empty();
     }
-
-    private boolean shouldRecordPageSource() {
-        // Disable this for now
-        return false;
-    }
-
 
     private final static String HTML_PRISM_HIGHLIGHT = "<html lang='en'><head><link href='prism/prism.css' rel='stylesheet' /></head><body><script src='prism/prism.js'></script><body><div><pre><code class='language-html'>";
     private final static String HTML_CLOSE = "</code></pre></div></body></html>";
