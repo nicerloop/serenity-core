@@ -401,7 +401,6 @@
                                     </#if>
                                 </#list>
                                 <#assign level = level-1>
-                                <#assign screenshotCount = screenshotCount + step.screenshotCount>
 
                             </table>
                         </td>
