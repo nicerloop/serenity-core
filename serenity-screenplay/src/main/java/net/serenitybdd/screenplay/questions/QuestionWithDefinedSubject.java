@@ -35,4 +35,9 @@ public class QuestionWithDefinedSubject<T> implements Question<T> {
     public String getSubject() {
         return subject;
     }
+
+    @Override
+    public String toString() {
+        return subject;
+    }
 }
