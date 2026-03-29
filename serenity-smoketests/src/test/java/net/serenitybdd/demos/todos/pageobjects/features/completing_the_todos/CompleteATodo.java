@@ -35,7 +35,6 @@ public class CompleteATodo {
     @Test
     public void should_be_able_to_complete_a_todo_with_page_objects() {
 
-        Assertions.assertThat()
         james.completes("Walk the dog");
 
         james.should_see_that_that_following_item_is_marked_as_complete("Walk the dog");
