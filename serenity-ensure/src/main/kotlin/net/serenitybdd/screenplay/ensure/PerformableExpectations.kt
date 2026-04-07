@@ -5,7 +5,7 @@ import net.serenitybdd.screenplay.Actor
 import net.serenitybdd.screenplay.Performable
 import net.thucydides.core.steps.StepEventBus
 
-private fun handleException(errorMsg: String) {
+internal fun handleException(errorMsg: String) {
     takeScreenshot()
     if (BlackBox.isUsingSoftAssertions()) {
         BlackBox.softlyAssert(errorMsg.trim())

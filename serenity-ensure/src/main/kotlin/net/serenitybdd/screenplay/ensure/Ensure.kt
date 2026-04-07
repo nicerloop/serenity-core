@@ -3,7 +3,6 @@
 package net.serenitybdd.screenplay.ensure
 
 import net.serenitybdd.screenplay.Actor
-import net.serenitybdd.screenplay.AnonymousPerformableFunction
 import net.serenitybdd.screenplay.Question
 import net.serenitybdd.screenplay.ensure.web.PageObjectEnsure
 import net.serenitybdd.screenplay.ensure.web.TargetEnsure
@@ -11,8 +10,6 @@ import net.serenitybdd.screenplay.targets.Target
 import org.openqa.selenium.By
 import java.time.LocalDate
 import java.time.LocalTime
-import java.util.function.Consumer
-
 fun that(value: String?) = StringEnsure(value)
 fun that(value: LocalDate?) = DateEnsure(value)
 fun that(value: LocalTime?) = TimeEnsure(value)
@@ -37,16 +34,7 @@ fun <A : Boolean?> that(question: Question<Boolean?>) = BooleanEnsure(KnowableBo
 
 fun <A> that(question: Question<A>, predicate: (actual: A) -> Boolean) = that("predicate check at ${predicateLocation()}", question, predicate)
 fun <A> that(description: String, question: Question<A>, predicate: (actual: A) -> Boolean) =
-    AnonymousPerformableFunction("Ensure that $description",
-        object : Consumer<Actor> {
-            override fun accept(actor: Actor) {
-                val actual = question.answeredBy(actor)
-                if (!predicate.invoke(actual)) {
-                    throw AssertionError("Expected $description but was $actual")
-                }
-            }
-        }
-    )
+    PerformableQuestionPredicate(description, question, predicate)
 
 fun predicateLocation() : String {
     val className = Throwable().stackTrace[2].className
