@@ -448,7 +448,7 @@ public class WebElementFacadeStub implements WebElementFacade, WebElementState {
         return new Wait<WebDriver>() {
 
             @Override
-            public <T> T until(Function<? super WebDriver, T> function) {
+            public <V> V until(Function<? super WebDriver, ? extends V> function) {
                 return null;
             }
         };

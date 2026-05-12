@@ -4,7 +4,6 @@ import net.thucydides.core.steps.StepEventBus;
 import net.thucydides.core.webdriver.TemporalUnitConverter;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriverException;
-import org.openqa.selenium.support.ui.Sleeper;
 import org.openqa.selenium.support.ui.Wait;
 
 import java.time.Clock;
@@ -27,13 +26,12 @@ public abstract class ThucydidesFluentWait<T> implements Wait<T> {
 
     private final Clock clock;
     private final T input;
-    private final Sleeper sleeper;
+    // sleeper removed (Selenium no longer exposes Sleeper in newer versions)
     private Supplier<String> messageSupplier = () -> null;
 
-    public ThucydidesFluentWait(T input, Clock clock, Sleeper sleeper) {
+    public ThucydidesFluentWait(T input, Clock clock) {
         this.input = checkNotNull(input);
         this.clock = checkNotNull(clock);
-        this.sleeper = checkNotNull(sleeper);
     }
 
     protected Clock getClock() {
@@ -44,12 +42,10 @@ public abstract class ThucydidesFluentWait<T> implements Wait<T> {
         return input;
     }
 
-    protected Sleeper getSleeper() {
-        return sleeper;
-    }
+    // Sleeper access removed. Subclasses should use Thread.sleep(interval.toMillis()) where required.
 
     @Override
-    public <V> V until(Function<? super T, V> isTrue) {
+    public <V> V until(Function<? super T, ? extends V> isTrue) {
         long end = getClock().millis() +  timeout.toMillis();
         RuntimeException lastException = null;
         String waitForConditionMessage = isTrue.toString();
@@ -58,13 +54,12 @@ public abstract class ThucydidesFluentWait<T> implements Wait<T> {
                 return (V) Boolean.TRUE;
             }
             try {
-                V value = isTrue.apply(input);
+                V value = (V) isTrue.apply(input);
                 if (value != null && Boolean.class.equals(value.getClass())) {
                     if (Boolean.TRUE.equals(value)) {
                         return value;
                     }
-                }
-                else {
+                } else {
                     throw new IllegalArgumentException("Condition should be a boolean function");
                 }
             } catch (RuntimeException e) {

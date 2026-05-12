@@ -34,7 +34,6 @@ public class RenderedPageObjectView {
     private final transient WebDriver driver;
     private transient Duration waitForTimeout;
     private final Clock webdriverClock;
-    private final Sleeper sleeper;
     private final PageObject pageObject;
     private final boolean timeoutCanBeOverriden;
 
@@ -53,7 +52,6 @@ public class RenderedPageObjectView {
         this.pageObject = pageObject;
         setWaitForTimeout(waitForTimeout);
         this.webdriverClock = Clock.systemDefaultZone();
-        this.sleeper = Sleeper.SYSTEM_SLEEPER;
         this.timeoutCanBeOverriden = timeoutCanBeOverriden;
     }
 
@@ -62,7 +60,7 @@ public class RenderedPageObjectView {
     }
 
     public ThucydidesFluentWait<WebDriver> waitForCondition() {
-        return new NormalFluentWait(driver, webdriverClock, sleeper)
+        return new NormalFluentWait(driver, webdriverClock)
                 .withTimeout(waitForTimeout)
                 .pollingEvery(WAIT_FOR_ELEMENT_PAUSE_LENGTH, TimeUnit.MILLISECONDS)
                 .ignoring(NoSuchElementException.class,

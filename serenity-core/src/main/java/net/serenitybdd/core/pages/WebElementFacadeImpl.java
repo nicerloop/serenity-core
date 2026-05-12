@@ -52,7 +52,6 @@ public class WebElementFacadeImpl implements WebElementFacade, net.thucydides.co
     private final long implicitTimeoutInMilliseconds;
     private final long waitForTimeoutInMilliseconds;
     private static final int WAIT_FOR_ELEMENT_PAUSE_LENGTH = 100;
-    private final Sleeper sleeper;
     private final Clock webdriverClock;
     private final By bySelector;
     private final JavascriptExecutorFacade javascriptExecutorFacade;
@@ -71,7 +70,6 @@ public class WebElementFacadeImpl implements WebElementFacade, net.thucydides.co
         this.locator = locator;
         this.bySelector = bySelector;
         this.webdriverClock = Clock.systemDefaultZone();
-        this.sleeper = Sleeper.SYSTEM_SLEEPER;
         this.javascriptExecutorFacade = new JavascriptExecutorFacade(driver);
         this.environmentVariables = SystemEnvironmentVariables.currentEnvironmentVariables();
         this.implicitTimeoutInMilliseconds = implicitTimeoutInMilliseconds;
@@ -84,7 +82,6 @@ public class WebElementFacadeImpl implements WebElementFacade, net.thucydides.co
         this.locator = null;
         this.bySelector = bySelector;
         this.webdriverClock = Clock.systemDefaultZone();
-        this.sleeper = Sleeper.SYSTEM_SLEEPER;
         this.javascriptExecutorFacade = new JavascriptExecutorFacade(driver);
         this.environmentVariables = SystemEnvironmentVariables.currentEnvironmentVariables();
         this.implicitTimeoutInMilliseconds = implicitTimeoutInMilliseconds;
@@ -97,7 +94,6 @@ public class WebElementFacadeImpl implements WebElementFacade, net.thucydides.co
         this.locator = locator;
         this.bySelector = null;
         this.webdriverClock = Clock.systemDefaultZone();
-        this.sleeper = Sleeper.SYSTEM_SLEEPER;
         this.javascriptExecutorFacade = new JavascriptExecutorFacade(driver);
         this.environmentVariables = SystemEnvironmentVariables.currentEnvironmentVariables();
         this.implicitTimeoutInMilliseconds = implicitTimeoutInMilliseconds;
@@ -115,7 +111,6 @@ public class WebElementFacadeImpl implements WebElementFacade, net.thucydides.co
         this.locator = locator;
         this.bySelector = bySelector;
         this.webdriverClock = Clock.systemDefaultZone();
-        this.sleeper = Sleeper.SYSTEM_SLEEPER;
         this.javascriptExecutorFacade = new JavascriptExecutorFacade(driver);
         this.environmentVariables = SystemEnvironmentVariables.currentEnvironmentVariables();
         this.implicitTimeoutInMilliseconds = timeoutInMilliseconds;
@@ -1048,7 +1043,7 @@ public class WebElementFacadeImpl implements WebElementFacade, net.thucydides.co
 
     @Override
     public Wait<WebDriver> waitForCondition() {
-        return new FluentWait<>(driver, webdriverClock, sleeper)
+        return new FluentWait<>(driver)
                 .withTimeout(Duration.ofMillis(waitForTimeoutInMilliseconds))
                 .pollingEvery(Duration.ofMillis(WAIT_FOR_ELEMENT_PAUSE_LENGTH))
                 .ignoreAll(Arrays.asList(NoSuchElementException.class,

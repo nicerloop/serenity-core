@@ -37,7 +37,6 @@ import org.openqa.selenium.devtools.HasDevTools;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Sleeper;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +88,7 @@ public abstract class PageObject {
     private Duration waitForTimeout;
     private Duration waitForElementTimeout;
 
-    private final Sleeper sleeper;
+    // Sleeper usage removed (Selenium updated). Pauses use Thread.sleep() where needed.
     private final Clock webdriverClock;
     private JavascriptExecutorFacade javascriptExecutorFacade;
 
@@ -136,7 +135,6 @@ public abstract class PageObject {
         this.webdriverClock = Clock.systemDefaultZone();
         this.clock = SerenityInfrastructure.getClock();
         this.environmentVariables = SystemEnvironmentVariables.currentEnvironmentVariables();
-        this.sleeper = Sleeper.SYSTEM_SLEEPER;
     }
 
     protected PageObject(final WebDriver driver, Predicate<? super PageObject> callback) {
@@ -1402,14 +1400,14 @@ public abstract class PageObject {
     }
 
     public ThucydidesFluentWait<WebDriver> waitForWithRefresh() {
-        return new FluentWaitWithRefresh<>(getDriver(), webdriverClock, sleeper)
+        return new FluentWaitWithRefresh<>(getDriver(), webdriverClock)
                 .withTimeout(getWaitForTimeout().toMillis(), TimeUnit.MILLISECONDS)
                 .pollingEvery(WAIT_FOR_ELEMENT_PAUSE_LENGTH, TimeUnit.MILLISECONDS)
                 .ignoring(NoSuchElementException.class, NoSuchFrameException.class);
     }
 
     public SerenityFluentWait waitForCondition() {
-        return (SerenityFluentWait) new SerenityFluentWait(getDriver(), webdriverClock, sleeper)
+        return (SerenityFluentWait) new SerenityFluentWait(getDriver())
                 .withTimeout(getWaitForTimeout())
                 .pollingEvery(Duration.ofMillis(WAIT_FOR_ELEMENT_PAUSE_LENGTH))
                 .ignoring(NoSuchElementException.class, NoSuchFrameException.class);

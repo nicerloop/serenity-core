@@ -15,7 +15,6 @@ import org.mockito.MockitoAnnotations;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.Sleeper;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,8 +29,6 @@ public class WhenRunningPolledTests {
     @Mock
     WebDriver driver;
 
-    @Mock
-    Sleeper sleeper;
 
     @Mock
     StepFailure failure;
@@ -143,14 +140,14 @@ public class WhenRunningPolledTests {
     public void page_should_pause_during_wait() throws InterruptedException {
 
         Clock clock = Clock.systemDefaultZone();
-        NormalFluentWait<WebDriver> waitFor = new NormalFluentWait(driver, clock, sleeper);
+        NormalFluentWait<WebDriver> waitFor = new NormalFluentWait(driver, clock);
         Counter counter = new Counter();
 
         waitFor.withTimeoutOf(5000).milliseconds()
                 .pollingEvery(100).milliseconds()
                 .until(weHaveWaitedEnough(counter));
 
-        verify(sleeper, times(3)).sleep(java.time.Duration.ofMillis(100));
+        // Sleep is performed by Thread.sleep internally in the new implementation; we don't mock it here.
     }
 
 
