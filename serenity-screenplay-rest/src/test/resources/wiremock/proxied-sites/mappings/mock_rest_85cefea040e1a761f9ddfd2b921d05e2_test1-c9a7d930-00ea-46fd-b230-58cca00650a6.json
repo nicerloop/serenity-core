@@ -3,13 +3,7 @@
   "name" : "mock_rest_85cefea040e1a761f9ddfd2b921d05e2_test1",
   "request" : {
     "url" : "/mock/rest/85cefea040e1a761f9ddfd2b921d05e2/test1",
-    "method" : "GET",
-    "headers" : {
-      "Host" : {
-        "equalTo" : "extendsclass.com",
-        "caseInsensitive" : true
-      }
-    }
+    "method" : "GET"
   },
   "response" : {
     "status" : 200,

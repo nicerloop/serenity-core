@@ -23,6 +23,7 @@ import net.serenitybdd.screenplay.rest.questions.TheResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -48,22 +49,22 @@ public class WhenInteractingWithAnAPIUsingScreenplay {
 
     @RegisterExtension
     static WireMockExtension wireMockExtension = WireMockExtension.newInstance()
-        .options(prepareWireMockConfiguration())
-        .proxyMode(true)
-        .build();
+            .options(prepareWireMockConfiguration())
+            .build();
 
     @BeforeEach
     void prepare() {
         RestDefaults.reset(); // Reset previous settings, if any. Ensures that e.g headers are not repeated.
         RestDefaults.setDefaultRequestSpecification(getDefaultRequestSpecBuilder().build());
 
-        sam = Actor.named("Sam the supervisor").whoCan(CallAnApi.at(REQRES_BASE_URL));
+        // Target the WireMock server (which serves recorded/stubbed responses) so tests are hermetic.
+        sam = Actor.named("Sam the supervisor").whoCan(CallAnApi.at(wireMockExtension.baseUrl()));
     }
 
     @Test
     public void list_all_users() {
 
-        Actor sam = Actor.named("Sam the supervisor").whoCan(CallAnApi.at(REQRES_BASE_URL));
+        Actor sam = Actor.named("Sam the supervisor").whoCan(CallAnApi.at(wireMockExtension.baseUrl()));
 
         sam.attemptsTo(
                 FetchUser.withId(1),
@@ -146,14 +147,34 @@ public class WhenInteractingWithAnAPIUsingScreenplay {
             return new RestQuestionBuilder<String>()
                     .to("/get")
                     .withQueryParameters("foo1", "bar1", "foo2", arg)
-                    .returning(response -> response.path("args.foo2"));
+                    .returning(response -> {
+                        try {
+                            return response.jsonPath().getString("args.foo2");
+                        } catch (Exception e) {
+                            try {
+                                return response.xmlPath().getString("args.foo2");
+                            } catch (Exception e2) {
+                                return response.getBody().asString();
+                            }
+                        }
+                    });
         }
 
         public static Question<String> pathParameters(String arg) {
             return new RestQuestionBuilder<String>()
                     .to("/mock/rest/{path1}/{path2}")
                     .withPathParameters("path1", "85cefea040e1a761f9ddfd2b921d05e2", "path2", arg)
-                    .returning(response -> response.path("message"));
+                    .returning(response -> {
+                        try {
+                            return response.jsonPath().getString("message");
+                        } catch (Exception e) {
+                            try {
+                                return response.xmlPath().getString("message");
+                            } catch (Exception e2) {
+                                return response.getBody().asString();
+                            }
+                        }
+                    });
         }
     }
 
@@ -176,7 +197,7 @@ public class WhenInteractingWithAnAPIUsingScreenplay {
     @Test
     public void question_via_path_params() {
 
-        Actor lucas = Actor.named("Lucas").whoCan(CallAnApi.at("https://extendsclass.com"));
+        Actor lucas = Actor.named("Lucas").whoCan(CallAnApi.at(wireMockExtension.baseUrl()));
 
         lucas.should(
                 seeThat(Echo.pathParameters("test1"), equalTo("success"))
@@ -185,6 +206,8 @@ public class WhenInteractingWithAnAPIUsingScreenplay {
 
     @Test
     public void question_via_query_param() {
+        // Clear any Host header set for other tests so external services receive correct Host
+        RestDefaults.setDefaultRequestSpecification(new RequestSpecBuilder().setRelaxedHTTPSValidation().build());
 
         sam.should(
                 seeThat(TheUser.totalPagesForPage(2), equalTo(2))
@@ -205,7 +228,8 @@ public class WhenInteractingWithAnAPIUsingScreenplay {
     @Test
     public void question_via_query_params() {
 
-        Actor lucas = Actor.named("Lucas").whoCan(CallAnApi.at("https://postman-echo.com"));
+
+        Actor lucas = Actor.named("Lucas").whoCan(CallAnApi.at(wireMockExtension.baseUrl()));
 
         lucas.should(
                 seeThat(Echo.queryParameters("bar2"), equalTo("bar2"))
@@ -309,8 +333,9 @@ public class WhenInteractingWithAnAPIUsingScreenplay {
 
     private static RequestSpecBuilder getDefaultRequestSpecBuilder() {
         final RequestSpecBuilder requestSpecBuilder = new RequestSpecBuilder()
-            .setProxy(wireMockExtension.getPort())
-            .setRelaxedHTTPSValidation();
+            .setRelaxedHTTPSValidation()
+            // Ensure the Host header matches the original upstream service so recorded stubs match
+            .addHeader("Host", "reqres.in");
 
         if (ENABLE_RECORDING) {
             requestSpecBuilder.addHeader("x-api-key", "reqres-free-v1");

@@ -4,12 +4,7 @@
   "request" : {
     "urlPath" : "/get",
     "method" : "GET",
-    "headers" : {
-      "Host" : {
-        "equalTo" : "postman-echo.com",
-        "caseInsensitive" : true
-      }
-    },
+
     "queryParameters" : {
       "foo1" : {
         "hasExactly" : [ {

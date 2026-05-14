@@ -18,10 +18,11 @@ import static net.serenitybdd.screenplay.rest.questions.ResponseConsequence.seeT
 @ExtendWith(SerenityJUnit5Extension.class)
 public class WhenUsingSessionFilterRegressionTest {
 
-  @RegisterExtension
+  @org.junit.jupiter.api.extension.RegisterExtension
   static WireMockExtension sessionsWireMock = WireMockExtension.newInstance().options(WireMockConfiguration.options()
           .dynamicPort()
           .usingFilesUnderClasspath("wiremock/sessions"))
+      .filesRoot("/Users/john/Projects/Serenity/serenity-core/serenity-screenplay-rest/src/test/resources/wiremock/sessions")
       .build();
 
   Actor actor;
